@@ -1,3 +1,5 @@
+#!/usr/bin/env python                                                     
+# -*- coding: utf-8 -*-   
 #esta es la biblioteca del micro sistema
 import os
 def impPresentacion():
@@ -5,34 +7,16 @@ def impPresentacion():
 	print("Escriba help para ayuda ")
 
 def lsd(comando):
-	try:
-		tablaDeArch=open(".tablaDeArchivos.tbl","r")
-	except IOError:
-		crearReq(0)
-		tablaDeArch=open(".tablaDeArchivos.tbl","r")
-	for line in tablaDeArch:
-		if line[0]!="#" and line[0]!="$":
-			aux=line.split("\t")
-			print(aux[0]+"\t")
-	tablaDeArch.close()
-
-def add(comando):
-	cmd=comando.split(" ")
-	# if tienePico(cmd):
-	# 	archivoDestino=cmd[-1]
-	# 	if len(archivoDestino)>50:
-	# 		print("Nombre de archivo demasiado grande")
-	# 		return False
-	# 	else:
-	# 		contenido=""
-	# 		for i in range(1,len(cmd)-1):
-	# 			if cmd[i]!=">>" and cmd[i]!=">":
-	# 				contenido+=cmd[i]
-	# 			else:
-	# 				break
-	# 		dr=buscar(archivoDestino)
-	# 		if dr
-
+        try:
+                table=open("ejemploTabla.txt","r")
+        except IOError:
+                crearReq(0)
+                table=open("ejemploTabla.txt","r")
+        for line in table:
+                aux=line.split("\t")
+                if aux[0]!="0000000000":
+                        print(aux[0].strip('0')+"\t")
+        table.close()
 
 def new(comando):
 	arch=comando[1]
@@ -59,30 +43,29 @@ def new(comando):
 	archivos.write(" \EOF 0")
 	print (ultima)
 
-
+#Modifico la forma de borrar poniendo en ceros la el archivo a eliminar a eliminar
 def dele(comando):
-	#esta funcion pone un caracter de borrado en la tabla
-	#de archivos para marcarlo como borrado
-	try:
-		tabla=open(".tablaDeArchivos.tbl","r")
-	except IOError:
-		crearReq(0)
-		tabla=open(".tablaDeArchivos.tbl","r")
-	diraux=-1 #la direccion auxiliar se pone en -1
-	cont=0 #el contador de direcciones se pone en 0
-	for linea in tabla:
-		cont+=len(linea) # se aumenta el contador cada linea
-		if linea[0]!="#" and linea[0]!="$":#caracteres de omision
-			aux=linea.split("\t")
-			if aux[0]==comando[1]:#se verifica el nombre
-				diraux=cont-len(linea)+1#se guarda la direccion
-				break
-	tabla.close()
-	if diraux!=-1:#si lo encontro lo cambia
-		tabla=open(".tablaDeArchivos.tbl","r+")
-		tabla.seek(diraux)
-		tabla.write("#")#se inserta este caracter
-		tabla.close()
+        nameDel = input()
+        if len(nameDel) < 10:
+                for i in range(len(nameDel),10):
+                        nameDel += "0"
+        
+        despDel = 0
+        fileNotFound = 0
+        table=open("ejemploTabla.txt","r+")
+        for line in table:
+                aux = line.split("\t")
+                if aux[0] == nameDel:
+                   table.seek(despDel,0)
+                   table.write("0000000000\t000\t000\t0000\t000\n")
+                   fileNotFound = 1
+                   break
+                despDel+=28
+        table.close()
+        if fileNotFound == 0:
+                print("El archivo no existe")
+        
+
 
 def cat(comando):#muestra el contenido de un archivo
 	archivo=comando[1]
@@ -154,3 +137,148 @@ def buscarborrado():
 			return aux
 	tabla.close()
 	return -1
+
+
+
+################################### A partir de aqui acoplo nueva tabla
+
+
+actualSize = 0
+
+#Verifica el tamaño delarchivo
+def checkSize(size):
+    maxSize = 10000000
+    global actualSize
+
+    actualSize += size
+    table=open("ejemploTabla.txt","r")
+    for line in table:
+        aux=line.split("\t")
+        if aux[3]:
+            if (actualSize+int(aux[3]))<=maxSize:
+                actualSize+=int(aux[3])
+                return 1
+                break
+        else:
+                print("Espacio insuficiente para esa cadena")
+                return 0
+    table.close()
+    #return 1;
+
+#tabla de archivos
+def tabla():
+    table=open("ejemploTabla.txt","w")
+    #table.write("N\tDi\tDf\tT\tE\n")####################### N = Nombre, Di = Direccion de inicio, Df = Dirección final, T = tamaño, E = editado
+    for x in range(0,10):
+        table.write("0000000000\t000\t000\t0000\t000\n")
+    table.close()
+
+#almacena los datos del archivo #Aun por finalizar#
+def disk(newElement):
+    almacen=open("virtDisk.txt","w")
+    almacen.close()
+    
+#Obtiene la direccion inicial y la direccion final
+def direccion(size):
+    global actualSize
+    despDi = 11
+    #despDf = 15
+    table=open("ejemploTabla.txt","r+")
+    for line in table:
+        aux=line.split("\t")
+        if aux[1] == "000" and  aux[2] == "000":
+##Se agrega cambio a desplazamiento de la direccion
+            if actualSize-size <= 9:
+                table.seek(despDi+2,0)
+                tmp= actualSize-size
+                table.write(str(tmp))
+                break
+            if actualSize-size<= 99 and actualSize-size >= 10:
+                table.seek(despDi+1,0)
+                tmp= actualSize-size
+                table.write(str(tmp))
+                break
+            if actualSize-size > 99:
+                table.seek(despDi,0)
+                tmp= actualSize-size
+                table.write(str(tmp))
+                break
+        else: despDi += 28
+    table.seek(0,0)
+    
+    for line in table:
+        aux=line.split("\t")
+        if actualSize > 99:
+                table.seek(despDi+4,0)
+                table.write(str(actualSize))
+                actualSize+=1
+                break
+        if actualSize >= 10 and actualSize <= 99:
+                table.seek(despDi+5,0)
+                table.write(str(actualSize))
+                actualSize+=1
+                break
+        if actualSize <= 9:
+                table.seek(despDi+6,0)
+                table.write(str(actualSize))
+                actualSize+=1
+                break
+    table.close() 
+
+#pretende determinar el tamaño del bloque
+def blocksize(size):
+    despT = 0
+    table=open("ejemploTabla.txt","r+")
+    for line in table:
+        aux=line.split("\t")
+        if aux[3] == "0000" and aux[2] != "000":
+            if size <= 9:
+                table.seek(despT+22,0)
+                table.write(str(size))
+                break
+            if size >= 10 and size <= 99:
+                table.seek(despT+21,0)
+                table.write(str(size))
+                break
+            if size >= 100 and size <= 999:
+                table.seek(despT+20,0)
+                table.write(str(size))
+                break
+            if size >= 1000:
+                table.seek(despT+19,0)
+                table.write(str(size))
+                break
+        despT+=28
+    table.close()
+    
+#Funcion agregar un archivo
+def add(comando):
+    global despN
+    global actualSize
+    Nombre = input()
+    if len(Nombre)>10:
+        print("Supera tamaño establecido")
+        print("Presione enter para continuar")
+    if len(Nombre)<=0:
+        print("Ingrese un nombre")
+        print("presione enter para continuar")
+    texto = input()
+    size = len(texto)
+
+    if checkSize(size) == 1 and len(Nombre) <= 10 and len(Nombre)> 0:
+        table=open("ejemploTabla.txt","r+")
+        for line in table:
+            aux=line.split("\t")
+            if aux[0] == "0000000000":
+                table.seek(despN,0)
+                table.write(Nombre)
+                despN += 28
+                break
+        direccion(size)
+        blocksize(size)
+        table.close()
+
+despN = 0
+tabla()
+
+############################## Aqui acaba el acoplamiento de la tabla

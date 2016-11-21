@@ -1,3 +1,0 @@
-def tabla():
-    table=open("ejemploTabla.txt","w")
-    table.write(Nombre\tDirección Inicio\tDirección Fin\Tamaño)

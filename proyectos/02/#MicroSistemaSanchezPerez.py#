@@ -19,6 +19,10 @@
 # 	cat archivo 			muestra lo que contiene un archivo
 # 	exit 					sale del programa
 from lib import *
+
+def tabla():
+        table=open("tabladatos.txt","w")
+
 def main():
 	impPresentacion()
 	comando=input(">: ").split(" ")
