@@ -22,7 +22,7 @@ from lib import *
 def main():
 	impPresentacion()
 	comando=input(">: ").split(" ")
-	dicOpe={"lsd":lsd,"add":add,"new":new,"del":dele,"cat":cat,"help":hel}
+	dicOpe={"lsd":lsd,"add":add,"del":dele,"cat":cat,"help":hel}
 	while comando[0] != "exit":
 		try:
 			func=dicOpe[comando[0]]
