@@ -18,31 +18,6 @@ def lsd(comando):
                         print(aux[0].strip('0')+"\t")
         table.close()
 
-def new(comando):
-	arch=comando[1]
-	if buscar(arch)!=-1:
-		print("error archivo encontrado")
-		return False
-	try:
-		archivos=open(".archivos.file","r")
-	except IOError:
-		crearReq(1)
-		archivos=open(".archivos.file","r")
-	for i in archivos:
-		pass
-	ultima=archivos.tell()
-	archivos.close()
-	try:
-		tabla=open(".tablaDeArchivos.tbl","a")
-	except IOError:
-		crearReq(0)
-		tabla=open(".tablaDeArchivos.tbl","a")
-	tabla.write("\n"+comando[1]+"\t"+str(ultima)+"\t0")
-	tabla.close()
-	archivos=open(".archivos.file","a")
-	archivos.write(" \EOF 0")
-	print (ultima)
-
 #Modifico la forma de borrar poniendo en ceros la el archivo a eliminar a eliminar
 def dele(comando):
         nameDel = input()
