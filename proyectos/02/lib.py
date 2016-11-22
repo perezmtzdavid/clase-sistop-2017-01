@@ -41,79 +41,34 @@ def dele(comando):
                 print("El archivo no existe")
         
 
+def buscar(archivo):
+        tabla=open("ejemploTabla.txt","r")
+        for line in tabla:
+                aux=line.split("\t")
+                if aux[0].strip('0')==archivo:
+                        tabla.close()
+                        return [aux[1],aux[2]]
+                else:
+                        return -1
+
 
 def cat(comando):#muestra el contenido de un archivo
-	archivo=comando[1]
-	dr=buscar(archivo)
-	if dr==-1:
-		print("Error archivo no encontrado")
-		return False
-	else:
-		try:
-			archivos=open(".archivos.file","r")
-		except IOError:
-			crearReq(1)
-			archivos=open(".archivos.file","r")
-		while dr[0]!="\\EOF":
-			archivos.seek(int(dr[0]))
-			print(archivos.read(int(dr[1])))
-			dr=archivos.readline().split(" ")[0:2]#limite de tamano por parte 10**5
-		archivos.close()
+        archivo=comando[1]
+        dr=buscar(archivo)
+        if dr != -1:
+                virtDisk = open("virtDisk.txt","r")
+                for line in virtDisk:
+                        aux = line.split("\t")
+                        if aux[0] == dr[0]:
+                                print(aux[1])
+                                break
+        else:
+                print("archivo no encontrado")
+
 
 def hel(comando):
-	os.system("cat help.txt")
-	print("\n")
-
-def crearReq(tipoError):
-	if tipoError==0:
-		cad="#esto es un comentario la tabla de archivos tiene 5 columnas\n#nombre		direccion	tamaño 		borrable\n"
-		os.system("echo "+cad+" > .tablaDeArchivos.tbl")
-	else:
-		os.system("touch .archivos.file")
-	# Esta funcion sirve para crear todos los requerimientos
-	# antes de que otra funcion quiera operar
-
-
-def tienePico(cmd):
-	for i in cmd:
-		if i==">>" or ">":
-			return True
-	return False
-
-def buscar(archivo):
-	#esta funcion busca un archivo en la tabla de
-	#archivos y regresa su direccion en el archivo
-	#de archivos, si no lo encuentra regresa -1
-	try:
-		tabla=open(".tablaDeArchivos.tbl","r")
-	except IOError:
-		crearReq(0)
-		tabla=open(".tablaDeArchivos.tbl","r")
-	for line in tabla:
-		if line[0]!="#" and line[0]!="$":
-			aux=line.split("\t")
-			if aux[0]==archivo:
-				tabla.close()
-				return [aux[1],aux[2]]
-	tabla.close()
-	return -1
-
-def buscarborrado():
-	#esta funcion encuentra un archivo borrado para ser sustituido
-	try:
-		tabla=open(".tablaDeArchivos.tbl","r")
-	except IOError:
-		crearReq(0)
-		tabla=open(".tablaDeArchivos.tbl","r")
-	for line in tabla:
-		if line[0]=="#":
-			aux=tabla.tell()-len(line)
-			tabla.close()
-			return aux
-	tabla.close()
-	return -1
-
-
+        os.system("cat help.txt")
+        print("\n")
 
 ################################### A partir de aqui acoplo nueva tabla
 
@@ -138,7 +93,6 @@ def checkSize(size):
                 print("Espacio insuficiente para esa cadena")
                 return 0
     table.close()
-    #return 1;
 
 #tabla de archivos
 def tabla():
@@ -149,15 +103,19 @@ def tabla():
     table.close()
 
 #almacena los datos del archivo #Aun por finalizar#
-def disk(newElement):
-    almacen=open("virtDisk.txt","w")
+def disk(Nombre,texto):
+    direccion=buscar(str(Nombre))
+    almacen = open("virtDisk.txt","a+")
+    table = open("ejemploTabla.txt","r")
+    cadena = str(direccion)+"\t"+texto+"\n"
+    almacen.write(cadena)
+    table.close()
     almacen.close()
-    
+
 #Obtiene la direccion inicial y la direccion final
 def direccion(size):
     global actualSize
     despDi = 11
-    #despDf = 15
     table=open("ejemploTabla.txt","r+")
     for line in table:
         aux=line.split("\t")
@@ -210,18 +168,22 @@ def blocksize(size):
             if size <= 9:
                 table.seek(despT+22,0)
                 table.write(str(size))
+                table.close()
                 break
             if size >= 10 and size <= 99:
                 table.seek(despT+21,0)
                 table.write(str(size))
+                table.close()
                 break
             if size >= 100 and size <= 999:
                 table.seek(despT+20,0)
                 table.write(str(size))
+                table.close()
                 break
             if size >= 1000:
                 table.seek(despT+19,0)
                 table.write(str(size))
+                table.close()
                 break
         despT+=28
     table.close()
@@ -231,6 +193,8 @@ def add(comando):
     global despN
     global actualSize
     Nombre = input()
+    Nombre = str(Nombre)
+
     if len(Nombre)>10:
         print("Supera tamaño establecido")
         print("Presione enter para continuar")
@@ -239,6 +203,7 @@ def add(comando):
         print("presione enter para continuar")
     texto = input()
     size = len(texto)
+    texto = str(texto)
 
     if checkSize(size) == 1 and len(Nombre) <= 10 and len(Nombre)> 0:
         table=open("ejemploTabla.txt","r+")
@@ -249,9 +214,10 @@ def add(comando):
                 table.write(Nombre)
                 despN += 28
                 break
+        table.close()
         direccion(size)
         blocksize(size)
-        table.close()
+        disk(Nombre,texto)
 
 despN = 0
 tabla()
