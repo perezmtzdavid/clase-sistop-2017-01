@@ -19,10 +19,11 @@
 # 	cat archivo 			muestra lo que contiene un archivo
 # 	exit 					sale del programa
 from lib import *
+import os
 def main():
 	impPresentacion()
 	comando=input(">: ").split(" ")
-	dicOpe={"lsd":lsd,"add":add,"del":dele,"cat":cat,"help":hel}
+	dicOpe={"lsd":lsd,"del":dele,"cat":cat,"help":hel,"new":new,"add":add}
 	while comando[0] != "exit":
 		try:
 			func=dicOpe[comando[0]]
@@ -31,3 +32,4 @@ def main():
 			print("comando errorneo")
 		comando=input(">: ").split(" ")
 main()
+os.system("rm virtDisk.txt")
