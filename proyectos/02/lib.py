@@ -45,11 +45,11 @@ def buscar(archivo):
         tabla=open("ejemploTabla.txt","r")
         for line in tabla:
                 aux=line.split("\t")
+                print(line)
                 if aux[0].strip('0')==archivo:
                         tabla.close()
                         return [aux[1],aux[2]]
-                else:
-                        return -1
+        return -1
 
 
 def cat(comando):#muestra el contenido de un archivo
@@ -77,7 +77,7 @@ actualSize = 0
 
 #Verifica el tamaño delarchivo
 def checkSize(size):
-    maxSize = 10000000
+    maxSize = 10000
     global actualSize
 
     actualSize += size
@@ -107,14 +107,19 @@ def disk(Nombre,texto):
     direccion=buscar(str(Nombre))
     almacen = open("virtDisk.txt","a+")
     table = open("ejemploTabla.txt","r")
-    cadena = str(direccion)+"\t"+texto+"\n"
-    almacen.write(cadena)
+    if direccion!=-1:
+            cadena = str(direccion[0])+"\t"+texto+"\t"+str(direccion[1])+"\n"
+            print(cadena)
+            almacen.write(cadena)
+    else:
+            print("se puteo")
     table.close()
     almacen.close()
 
 #Obtiene la direccion inicial y la direccion final
 def direccion(size):
     global actualSize
+    global inicio
     despDi = 11
     table=open("ejemploTabla.txt","r+")
     for line in table:
@@ -192,8 +197,7 @@ def blocksize(size):
 def add(comando):
     global despN
     global actualSize
-    Nombre = input()
-    Nombre = str(Nombre)
+    Nombre = comando[1]
 
     if len(Nombre)>10:
         print("Supera tamaño establecido")
@@ -201,9 +205,8 @@ def add(comando):
     if len(Nombre)<=0:
         print("Ingrese un nombre")
         print("presione enter para continuar")
-    texto = input()
+    texto = comando[2]
     size = len(texto)
-    texto = str(texto)
 
     if checkSize(size) == 1 and len(Nombre) <= 10 and len(Nombre)> 0:
         table=open("ejemploTabla.txt","r+")
@@ -219,6 +222,7 @@ def add(comando):
         blocksize(size)
         disk(Nombre,texto)
 
+despDinicial = 0
 despN = 0
 tabla()
 
