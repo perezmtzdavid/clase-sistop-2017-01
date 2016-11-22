@@ -20,7 +20,7 @@ def lsd(comando):
 
 #Modifico la forma de borrar poniendo en ceros la el archivo a eliminar a eliminar
 def dele(comando):
-        nameDel = input()
+        nameDel = comando[1]
         if len(nameDel) < 10:
                 for i in range(len(nameDel),10):
                         nameDel += "0"
@@ -61,9 +61,11 @@ def cat(comando):#muestra el contenido de un archivo
                         aux = line.split("\t")
                         if aux[0] == dr[0]:
                                 print(aux[1])
+                                return aux[1]
                                 break
         else:
                 print("archivo no encontrado")
+                return -1
 
 
 def hel(comando):
@@ -79,14 +81,12 @@ actualSize = 0
 def checkSize(size):
     maxSize = 10000
     global actualSize
-
     actualSize += size
     table=open("ejemploTabla.txt","r")
     for line in table:
         aux=line.split("\t")
         if aux[3]:
             if (actualSize+int(aux[3]))<=maxSize:
-                actualSize+=int(aux[3])
                 return 1
                 break
         else:
@@ -112,14 +112,13 @@ def disk(Nombre,texto):
             print(cadena)
             almacen.write(cadena)
     else:
-            print("se puteo")
+            print("Hubo un error garrafal")
     table.close()
     almacen.close()
 
 #Obtiene la direccion inicial y la direccion final
 def direccion(size):
     global actualSize
-    global inicio
     despDi = 11
     table=open("ejemploTabla.txt","r+")
     for line in table:
@@ -194,7 +193,7 @@ def blocksize(size):
     table.close()
     
 #Funcion agregar un archivo
-def add(comando):
+def new(comando):
     global despN
     global actualSize
     Nombre = comando[1]
@@ -222,8 +221,22 @@ def add(comando):
         blocksize(size)
         disk(Nombre,texto)
 
-despDinicial = 0
 despN = 0
 tabla()
-
+def add(comando):
+        try:
+                nombre=comando[1]
+        except:
+                print("Error no diste el nombre del archivo")
+                return -1
+        try:
+                texto2=comando[2]
+        except:
+                print("Error no diste el texto a agregar")
+                return -1
+        texto=cat(["cat",nombre])
+        print("aqui "+texto2)
+        if texto!=-1:
+                dele(["del",nombre])
+                new(["new",nombre,texto+texto2])
 ############################## Aqui acaba el acoplamiento de la tabla
